@@ -6,17 +6,19 @@
 #include "mpc.h"
 
 int main(int argc, char* argv[]) {
+    mpc_parser_t* Count = mpc_new("count");
     mpc_parser_t* Die = mpc_new("die");
     mpc_parser_t* Dice = mpc_new("dice");
 
     mpc_err_t* err = mpca_lang(MPCA_LANG_DEFAULT,
-        "                           \
-            die  : /d[0-9][0-9]*/;  \
-            dice : /^/ <die> /$/;   \
-        ", Die, Dice);
+        "                            \
+            count : /[1-9][0-9]*/;   \
+            die   : /d/<count>;      \
+            dice  : /^/ <die> /$/;   \
+        ", Count, Die, Dice);
 
     if (err != NULL) {
-        printf("%s\n", err->failure);
+        mpc_err_print(err);
     }
 
     if (argc == 1) {
