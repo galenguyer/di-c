@@ -9,6 +9,18 @@ typedef struct dice_state {
     int count;
 } dice_state;
 
+void initialize_state(dice_state* state) {
+    state->count = 0;
+}
+
+void print_state(dice_state* state) {
+    printf("state->count: %d\n", state->count);
+}
+
+void eval(mpc_ast_t* tree, dice_state* state) {
+    print_state(state);
+}
+
 int main(int argc, char* argv[]) {
     mpc_parser_t* Count = mpc_new("count");
     mpc_parser_t* Die = mpc_new("die");
@@ -39,6 +51,9 @@ int main(int argc, char* argv[]) {
     mpc_result_t result;
     if (mpc_parse("<stdin>", input, Dice, &result)) {
         mpc_ast_print(result.output);
+        dice_state state;
+        initialize_state(&state);
+        eval(result.output, &state);
         mpc_ast_delete(result.output);
     }
     else {
