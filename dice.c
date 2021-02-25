@@ -19,6 +19,8 @@ int main(int argc, char* argv[]) {
 
     if (err != NULL) {
         mpc_err_print(err);
+        mpc_err_delete(err);
+        return 1;
     }
 
     char input[1024];
