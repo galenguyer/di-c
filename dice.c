@@ -1,6 +1,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
+#include <math.h>
+#include <sys/random.h>
 #include <editline/readline.h>
 
 #include "mpc.h"
@@ -8,6 +11,10 @@
 typedef struct dice_state {
     int sides;
 } dice_state;
+
+typedef struct dice_result {
+    int result;
+} dice_result;
 
 void initialize_state(dice_state* state) {
     state->sides = 0;
@@ -17,9 +24,16 @@ void print_state(dice_state* state) {
     printf("state->sides: %d\n", state->sides);
 }
 
+void get_result(dice_state* state, dice_result* result) {
+    int* nums = malloc(sizeof(int));
+    getrandom((void*)nums, sizeof(int), 0);
+
+    result->result = abs((int)*nums) % state->sides + 1;
+}
+
 void eval(mpc_ast_t* tree, dice_state* state) {
-    mpc_ast_print(tree);
-    puts("-----");
+    //mpc_ast_print(tree);
+    //puts("-----");
 
     if (strstr(tree->tag, "sides")) {
         state->sides = atoi(tree->contents);
@@ -61,9 +75,12 @@ int main(int argc, char* argv[]) {
     if (mpc_parse("<stdin>", input, Dice, &result)) {
         mpc_ast_print(result.output);
         dice_state state;
+        dice_result dice;
         initialize_state(&state);
         eval(result.output, &state);
         print_state(&state);
+        get_result(&state, &dice);
+        printf("Result: %d\n", dice.result);
         mpc_ast_delete(result.output);
     }
     else {
