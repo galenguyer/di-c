@@ -1,3 +1,4 @@
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <editline/readline.h>
@@ -8,11 +9,15 @@ int main(int argc, char* argv[]) {
     mpc_parser_t* Die = mpc_new("die");
     mpc_parser_t* Dice = mpc_new("dice");
 
-    mpca_lang(MPCA_LANG_DEFAULT, 
+    mpc_err_t* err = mpca_lang(MPCA_LANG_DEFAULT,
         "                           \
             die  : /d[0-9][0-9]*/;  \
             dice : /^/ <die> /$/;   \
         ", Die, Dice);
+
+    if (err != NULL) {
+        printf("%s\n", err->failure);
+    }
 
     if (argc == 1) {
         while(1) {
