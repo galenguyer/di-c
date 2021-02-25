@@ -5,6 +5,10 @@
 
 #include "mpc.h"
 
+typedef struct dice_state {
+    int count;
+} dice_state;
+
 int main(int argc, char* argv[]) {
     mpc_parser_t* Count = mpc_new("count");
     mpc_parser_t* Die = mpc_new("die");
