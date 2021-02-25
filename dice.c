@@ -6,32 +6,41 @@
 #include "mpc.h"
 
 typedef struct dice_state {
-    int count;
+    int sides;
 } dice_state;
 
 void initialize_state(dice_state* state) {
-    state->count = 0;
+    state->sides = 0;
 }
 
 void print_state(dice_state* state) {
-    printf("state->count: %d\n", state->count);
+    printf("state->sides: %d\n", state->sides);
 }
 
 void eval(mpc_ast_t* tree, dice_state* state) {
-    print_state(state);
+    mpc_ast_print(tree);
+    puts("-----");
+
+    if (strstr(tree->tag, "sides")) {
+        state->sides = atoi(tree->contents);
+    }
+
+    for(int i = 0; i < tree->children_num; i++) {
+        eval(tree->children[i], state);
+    }
 }
 
 int main(int argc, char* argv[]) {
-    mpc_parser_t* Count = mpc_new("count");
+    mpc_parser_t* Sides = mpc_new("sides");
     mpc_parser_t* Die = mpc_new("die");
     mpc_parser_t* Dice = mpc_new("dice");
 
     mpc_err_t* err = mpca_lang(MPCA_LANG_DEFAULT,
         "                            \
-            count : /[1-9][0-9]*/;   \
-            die   : /d/<count>;      \
+            sides : /[1-9][0-9]*/;   \
+            die   : /d/<sides>;      \
             dice  : /^/ <die> /$/;   \
-        ", Count, Die, Dice);
+        ", Sides, Die, Dice);
 
     if (err != NULL) {
         mpc_err_print(err);
@@ -54,6 +63,7 @@ int main(int argc, char* argv[]) {
         dice_state state;
         initialize_state(&state);
         eval(result.output, &state);
+        print_state(&state);
         mpc_ast_delete(result.output);
     }
     else {
